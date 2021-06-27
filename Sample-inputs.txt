@@ -1,0 +1,6 @@
+subjects = ['Predictive Analytics','NLP','Web Technology','DBMS','OODA','Information Retrieval','Introduction to Python','Machine Learning']
+batches = [['DA', 36, '1'], ['GA', 40, '1'], ['MI', 35, '1'], ['CS', 40, '2'], ['DA', 36, '2'], ['GA', 40, '2'], ['MI', 35, '2'], ['CS', 40, '2']]   #branch name with no. of students
+#room no. + size of room
+rooms = [['ROOM NO.1', 50], ['ROOM NO.2', 30], ['ROOM NO.3', 50], ['ROOM NO.4', 80], ['ROOM NO.5', 50], ['ROOM NO.6', 100], ['ROOM NO.7', 50], ['ROOM NO.8',100], ['ROOM NO.9', 50], ['ROOM NO.10', 100]]
+time_period = ['9:00 - 10:00', '10:00-11:00', '11:00-12:00', '12:30-1:30', '1:30-2:30', '2:30-3:30', '3:30-4:30']  #cllg time from 9:00 to 4:30
+lunch_break = '12:00  - 12:30'
