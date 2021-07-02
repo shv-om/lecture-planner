@@ -109,12 +109,29 @@ class LecturePlanner:
     return population
     
   
-  def crossover(self):
-    pass
+  def crossover(self, chrome1, chrome2):
+    #performing single point crossover
+    c1 = list(chrome1)
+    c2 = list(chrome2)
+    #selecting a random point
+    r = random.randint(0,19)
+    #print('crossover pt:',r)
+    for i in range(r, len(c1)):
+      c1[i], c2[i] = c2[i], c1[i]
+    chrome1 = ''.join(c1)
+    chrome2 = ''.join(c2)
+    return chrome1, chrome2
+
+
+  def mutation(self, chrome):
+    r = random.randint(0,19)
+    #print('mutation pt',r)
+    chrome = list(chrome)
+    chrome[r] = str(1 - int(chrome[r]))
+    chrome = ''.join(chrome)
+    return chrome
   
-  def mutation(self):
-    pass
-  
+
   def print_pop(self):
     population = self.init_population()
     
@@ -122,3 +139,4 @@ class LecturePlanner:
 
     for chromosome in population:
       print(chromosome, self.fitness[chromosome], ' --> ' + self.subjects[chromosome[:4]], self.batches[chromosome[4:8]], self.rooms[chromosome[8:12]], self.time_period[chromosome[12:16]], self.days[chromosome[16:]], sep=", ")
+ 
