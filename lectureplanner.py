@@ -53,18 +53,21 @@ class LecturePlanner:
 
             self.__timedaydict(timeday_key)
 
-            # empty room condition
+            # performing check for empty rooms
             if splitted_chromo[2] not in self.timeday[timeday_key]['rooms']:
                 self.fitness[chromo] += 1
                 self.timeday[timeday_key]['rooms'].append(splitted_chromo[2])
 
+            # performing check if the number of students is less than the capacity of the room
             if self.batches[splitted_chromo[1]][1] <= self.rooms[splitted_chromo[2]][1]:
                 self.fitness[chromo] += 1
 
+            # performing check if any subject is occuring for another batch at the same time same day
             if splitted_chromo[0] not in self.timeday[timeday_key]['subjects']:
                 self.fitness[chromo] += 1
                 self.timeday[timeday_key]['subjects'].append(splitted_chromo[0])
 
+            # performing check if the batch is having any other class at the same time same day
             if splitted_chromo[1] not in self.timeday[timeday_key]['batches']:
                 temp = splitted_chromo[0] + splitted_chromo[1] + splitted_chromo[4]
                 if temp not in subject_day:
@@ -128,11 +131,18 @@ class LecturePlanner:
         return chrome
 
 
-    def print_pop(self):
+    def print_pop(self, pop, fitness):
+        
+        #population = self.init_population()
+        population = pop
+
+        for chromosome in population:
+            print(chromosome, fitness[chromosome], ' --> ' + self.subjects[chromosome[:4]], self.batches[chromosome[4:8]], self.rooms[chromosome[8:12]], self.time_period[chromosome[12:16]], self.days[chromosome[16:]], sep=", ")
+
+
+    def planner(self):
         population = self.init_population()
 
         self.calc_fitness(population)
 
-        for chromosome in population:
-            print(chromosome, self.fitness[chromosome], ' --> ' + self.subjects[chromosome[:4]], self.batches[chromosome[4:8]], self.rooms[chromosome[8:12]], self.time_period[chromosome[12:16]], self.days[chromosome[16:]], sep=", ")
-
+        self.print_pop(population, self.fitness)
