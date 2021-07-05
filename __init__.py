@@ -54,7 +54,7 @@ def inputdata():
 
 def startplanning(data):
 	lecture = LecturePlanner(data['batches'], data['rooms'], data['subjects'], data['time_period'], 4)
-	lecture.print_pop()
+	lecture.planner()
 
 
 while True:
