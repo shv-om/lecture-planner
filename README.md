@@ -2,7 +2,7 @@
 Automatic Lecture planner application for schools and colleges
 using Genetic Algorithm.
 
-##ALGORITHM
+## ALGORITHM
 
     First, an initial generation of chromosomes is created randomly and their fitness value is analysed.
 
