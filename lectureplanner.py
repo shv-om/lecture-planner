@@ -11,6 +11,7 @@ break = 1 hr  #mention lunch break time
 """
 
 import random
+import csv
 
 total_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -129,6 +130,14 @@ class LecturePlanner:
         chrome[r] = str(1 - int(chrome[r]))
         chrome = ''.join(chrome)
         return chrome
+
+
+    def makecsv(self):
+        
+        with open('timetable.csv', 'w', encoding='UTF-8') as f:
+
+            file = csv.write(f)
+
 
 
     def print_pop(self, pop, fitness):
