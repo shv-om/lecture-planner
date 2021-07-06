@@ -132,18 +132,27 @@ class LecturePlanner:
         return chrome
 
 
-    def makecsv(self):
+    def makecsv(self, pop):
+
+        top_header = [x  for x in self.time_period]
+        side_header = [y for y in self.days]
         
         with open('timetable.csv', 'w', encoding='UTF-8') as f:
 
-            file = csv.write(f)
+            writer = csv.write(f)
+
+            write.writerow(top_header)
+
+            for chromosome in pop:
+                data = chromosome[:12]
+                time = chromosome[12:16]
 
 
 
-    def print_pop(self, pop, fitness):
+
+    def print_pop(self, population, fitness):
         
         #population = self.init_population()
-        population = pop
 
         for chromosome in population:
             print(chromosome, fitness[chromosome], ' --> ' + self.subjects[chromosome[:4]], self.batches[chromosome[4:8]], self.rooms[chromosome[8:12]], self.time_period[chromosome[12:16]], self.days[chromosome[16:]], sep=", ")
