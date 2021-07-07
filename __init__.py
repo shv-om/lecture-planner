@@ -40,11 +40,20 @@ def input_batch_room(forname, forno):
 
 def inputdata():
 	clear()
+	"""
 	subjects = input("Enter subject list separated by a space eg: sub1 sub2... :\n").split()
 	print("\nEnter Batch Information (Name and No. of Students")
 	batches = input_batch_room('Batch Name', 'No. of students')
 	print("\nEnter Class Rooms information (Room no. and Capactiy)")
 	rooms = input_batch_room('Room No.', 'Capacity')
+	"""
+
+	# Temporary data
+	subjects = ['Predictive Analytics','NLP','Web Technology','DBMS','OODA','Information Retrieval','Introduction to Python','Machine Learning']
+	batches = [['DA', 36], ['GA', 40], ['MI', 35], ['CS', 40]]   #branch name with no. of students
+	#room no. + size of room
+	rooms = [['ROOM NO.1', 50], ['ROOM NO.2', 30], ['ROOM NO.3', 50], ['ROOM NO.4', 80], ['ROOM NO.5', 50], ['ROOM NO.6', 100], ['ROOM NO.7', 50], ['ROOM NO.8',100], ['ROOM NO.9', 50], ['ROOM NO.10', 100]]
+
 
 	#pre defined for ease of testing
 	time_period = ['9:00 - 10:00', '10:00-11:00', '11:00-12:00', '12:30-1:30', '1:30-2:30', '2:30-3:30', '3:30-4:30']  #cllg time from 9:00 to 4:30
@@ -53,7 +62,7 @@ def inputdata():
 
 
 def startplanning(data):
-	lecture = LecturePlanner(data['batches'], data['rooms'], data['subjects'], data['time_period'], 4)
+	lecture = LecturePlanner(data['batches'][:1], data['rooms'], data['subjects'], data['time_period'], 4)
 	lecture.planner()
 
 
@@ -67,10 +76,12 @@ while True:
 
 	elif int(m) == 1:
 		data = inputdata()
+		print("Data Recieved")
 
 	elif int(m) == 2:
 		print("StartPlanning...")
 		startplanning(data)
+		print("Time Table created")
 
 	else:
 		print("Wrong choice")

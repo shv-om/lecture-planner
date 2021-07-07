@@ -28,6 +28,8 @@ class LecturePlanner:
         self.days = self.init_gene(total_days[:days_count])
         self.fitness = {}
 
+        self.timetable = {}
+
         # self.timeday = {timeday_key1: {rooms:[], subjects:[]}, timeday_key2: {...}, ... }
         self.timeday = {}
 
@@ -37,6 +39,37 @@ class LecturePlanner:
 
     def __timedaydict(self, timeday_key):
         self.timeday[timeday_key] = {'rooms': [], 'subjects': [], 'batches': []}
+
+    
+    def init_gene(self, l):
+        d = dict()
+        for i in range(len(l)):
+            num = f'{i:04b}'   # {0:08b}.format(i)
+            d[num] = l[i]
+        return d
+
+
+    def init_population(self):
+        """
+        <teacher/subject, batch, room, time_period, day>
+        """
+
+        population = list()
+
+        # Converting Keys into Lists
+        subject = list(self.subjects)
+        batch = list(self.batches)
+        room = list(self.rooms)
+
+        for day in self.days:
+            for time in self.time_period:
+
+                #chromosome = (random.choice(self.subjects), random.choice(self.batches), random.choice(self.rooms), time, day)
+
+                chromosome = random.choice(subject) + random.choice(batch) + random.choice(room) + time + day
+                population.append(chromosome)
+
+        return population
 
 
     def calc_fitness(self, population):
@@ -77,37 +110,6 @@ class LecturePlanner:
                     subject_day.append(temp)
 
 
-    def init_gene(self, l):
-        d = dict()
-        for i in range(len(l)):
-            num = f'{i:04b}'   # {0:08b}.format(i)
-            d[num] = l[i]
-        return d
-
-
-    def init_population(self):
-        """
-        <teacher/subject, batch, room, time_period, day>
-        """
-
-        population = list()
-
-        # Converting Keys into Lists
-        subject = list(self.subjects)
-        batch = list(self.batches)
-        room = list(self.rooms)
-
-        for day in self.days:
-            for time in self.time_period:
-
-                #chromosome = (random.choice(self.subjects), random.choice(self.batches), random.choice(self.rooms), time, day)
-
-                chromosome = random.choice(subject) + random.choice(batch) + random.choice(room) + time + day
-                population.append(chromosome)
-
-        return population
-
-
     def crossover(self, chrome1, chrome2):
         #performing single point crossover
         c1 = list(chrome1)
@@ -134,7 +136,7 @@ class LecturePlanner:
 
     def makecsv(self, pop):
 
-        top_header = [x for x in self.time_period]
+        top_header = [self.time_period[x] for x in self.time_period]
         side_header = [y for y in self.days]
         
         with open('timetable.csv', 'w', encoding='UTF-8') as f:
@@ -146,7 +148,11 @@ class LecturePlanner:
             data_list = [pop[i:i+7] for i in range(0, len(pop), 7)]
 
             for data in data_list:
-                writer.writerow(data)
+                data1 = []
+                for chromo in data:
+                    data1.append([self.subjects[chromo[:4]], self.batches[chromo[4:8]][0], self.rooms[chromo[8:12]][0]])
+                #print(data1)
+                writer.writerow(data1)
 
 
     def print_pop(self, population, fitness):
@@ -162,6 +168,6 @@ class LecturePlanner:
 
         self.calc_fitness(population)
 
-        #self.print_pop(population, self.fitness)
+        self.print_pop(population, self.fitness)
 
-        self.makecsv(population)
+        #self.makecsv(population)
