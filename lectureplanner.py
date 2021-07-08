@@ -28,7 +28,7 @@ class LecturePlanner:
         self.days = self.init_gene(total_days[:days_count])
         self.fitness = {}
 
-        self.timetable = {}
+        self.timetable = {} # Just initialised
 
         # self.timeday = {timeday_key1: {rooms:[], subjects:[]}, timeday_key2: {...}, ... }
         self.timeday = {}
@@ -54,20 +54,22 @@ class LecturePlanner:
         <teacher/subject, batch, room, time_period, day>
         """
 
-        population = list()
+        population = {}
 
         # Converting Keys into Lists
         subject = list(self.subjects)
         batch = list(self.batches)
         room = list(self.rooms)
 
-        for day in self.days:
-            for time in self.time_period:
+        for b in batch:
+            population[b] = []
+            for day in self.days:
+                for time in self.time_period:
 
-                #chromosome = (random.choice(self.subjects), random.choice(self.batches), random.choice(self.rooms), time, day)
+                    #chromosome = (random.choice(self.subjects), random.choice(self.batches), random.choice(self.rooms), time, day)
 
-                chromosome = random.choice(subject) + random.choice(batch) + random.choice(room) + time + day
-                population.append(chromosome)
+                    chromosome = random.choice(subject) + random.choice(batch) + random.choice(room) + time + day
+                    population[b].append(chromosome)
 
         return population
 
@@ -75,9 +77,17 @@ class LecturePlanner:
     def calc_fitness(self, population):
         # We can calculate fitness using hashing on chromosomes
 
-        subject_day = []
+        batch_day = []      # Batch Day Time
+        sub_bat_day = []    # Subject Batch Day
 
-        for chromo in population:
+        new_pop = []    # population whose score is less than 5
+
+        total_pop = []
+
+        for i in population:
+            total_pop.extend(population[i])
+
+        for chromo in total_pop:
             self.fitness[chromo] = 0
 
             # [Subject, [Batch, Limit], [Room No, Vacancy], Time Period, Day]
@@ -99,21 +109,38 @@ class LecturePlanner:
             # performing check if any subject is occuring for another batch at the same time same day
             if splitted_chromo[0] not in self.timeday[timeday_key]['subjects']:
                 self.fitness[chromo] += 1
+                
+                # performing check if the batch is having same subject at the same day
+                temp1 = splitted_chromo[0] + splitted_chromo[1] + splitted_chromo[3]
+                if temp1 not in sub_bat_day:
+                    self.fitness[chromo] += 1
+                    sub_bat_day.append(temp1)
+
                 self.timeday[timeday_key]['subjects'].append(splitted_chromo[0])
 
-            # performing check if the batch is having any other class at the same time same day
+            # performing check if the batch is having any other subject class at the same time same day
             if splitted_chromo[1] not in self.timeday[timeday_key]['batches']:
-                temp = splitted_chromo[0] + splitted_chromo[1] + splitted_chromo[4]
-                if temp not in subject_day:
+                temp = splitted_chromo[1] + splitted_chromo[3] + splitted_chromo[4]
+                if temp not in batch_day:
                     self.fitness[chromo] += 1
                     self.timeday[timeday_key]['batches'].append(splitted_chromo[1])
-                    subject_day.append(temp)
+                    batch_day.append(temp)
+
+
+            if self.fitness[chromo] < 5:
+                new_pop.append(chromo)
+
+        #print(self.timeday, len(self.timeday), subject_day, sep="\n")
+
+        return new_pop
 
 
     def crossover(self, chrome1, chrome2):
+        
         #performing single point crossover
         c1 = list(chrome1)
         c2 = list(chrome2)
+        
         #selecting a random point
         r = random.randint(0,19)
         #print('crossover pt:',r)
@@ -122,22 +149,29 @@ class LecturePlanner:
             c1[i], c2[i] = c2[i], c1[i]
             chrome1 = ''.join(c1)
             chrome2 = ''.join(c2)
+        
         return chrome1, chrome2
 
 
     def mutation(self, chrome):
+        
         r = random.randint(0,19)
         #print('mutation pt',r)
         chrome = list(chrome)
         chrome[r] = str(1 - int(chrome[r]))
         chrome = ''.join(chrome)
+        
         return chrome
 
 
-    def makecsv(self, pop):
+    def makecsv(self, population):
 
         top_header = [self.time_period[x] for x in self.time_period]
         side_header = [y for y in self.days]
+
+        pop = []
+        for i in population:
+            pop.extend(population[i])
         
         with open('timetable.csv', 'w', encoding='UTF-8') as f:
 
@@ -159,15 +193,16 @@ class LecturePlanner:
         
         #population = self.init_population()
 
-        for chromosome in population:
-            print(chromosome, fitness[chromosome], ' --> ' + self.subjects[chromosome[:4]], self.batches[chromosome[4:8]], self.rooms[chromosome[8:12]], self.time_period[chromosome[12:16]], self.days[chromosome[16:]], sep=", ")
+        for pop in population:
+            for chromosome in population[pop]:
+                print(chromosome, fitness[chromosome], '--> ' + self.subjects[chromosome[:4]], self.batches[chromosome[4:8]], self.rooms[chromosome[8:12]], self.time_period[chromosome[12:16]], self.days[chromosome[16:]], sep=", ")
 
 
     def planner(self):
         population = self.init_population()
 
-        self.calc_fitness(population)
+        pop = self.calc_fitness(population)
 
-        self.print_pop(population, self.fitness)
+        #self.print_pop(population, self.fitness)
 
-        #self.makecsv(population)
+        self.makecsv(population)

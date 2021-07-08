@@ -56,13 +56,13 @@ def inputdata():
 
 
 	#pre defined for ease of testing
-	time_period = ['9:00 - 10:00', '10:00-11:00', '11:00-12:00', '12:30-1:30', '1:30-2:30', '2:30-3:30', '3:30-4:30']  #cllg time from 9:00 to 4:30
+	time_period = ['9:00-10:00', '10:00-11:00', '11:00-12:00', '12:30-1:30', '1:30-2:30', '2:30-3:30', '3:30-4:30']  #cllg time from 9:00 to 4:30
 
 	return {'subjects': subjects, 'batches': batches, 'rooms': rooms, 'time_period': time_period}
 
 
 def startplanning(data):
-	lecture = LecturePlanner(data['batches'][:1], data['rooms'], data['subjects'], data['time_period'], 4)
+	lecture = LecturePlanner(data['batches'], data['rooms'], data['subjects'], data['time_period'], 4)
 	lecture.planner()
 
 
