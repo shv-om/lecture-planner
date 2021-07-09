@@ -28,7 +28,8 @@ class LecturePlanner:
         self.days = self.init_gene(total_days[:days_count])
         self.fitness = {}
 
-        self.timetable = {} # Just initialised
+        self.timetable = {}     # Just initialised
+        self.new_population = []    # Population updated after every fitness calculation
 
         # self.timeday = {timeday_key1: {rooms:[], subjects:[]}, timeday_key2: {...}, ... }
         self.timeday = {}
@@ -80,14 +81,7 @@ class LecturePlanner:
         batch_day = []      # Batch Day Time
         sub_bat_day = []    # Subject Batch Day
 
-        new_pop = []    # population whose score is less than 5
-
-        total_pop = []
-
-        for i in population:
-            total_pop.extend(population[i])
-
-        for chromo in total_pop:
+        for chromo in population:
             self.fitness[chromo] = 0
 
             # [Subject, [Batch, Limit], [Room No, Vacancy], Time Period, Day]
@@ -103,6 +97,7 @@ class LecturePlanner:
                 self.timeday[timeday_key]['rooms'].append(splitted_chromo[2])
 
             # performing check if the number of students is less than the capacity of the room
+            # print(chromo)
             if self.batches[splitted_chromo[1]][1] <= self.rooms[splitted_chromo[2]][1]:
                 self.fitness[chromo] += 1
 
@@ -127,41 +122,52 @@ class LecturePlanner:
                     batch_day.append(temp)
 
 
-            if self.fitness[chromo] < 5:
-                new_pop.append(chromo)
+            if self.fitness[chromo] == 5 and chromo in self.new_population:
+                self.new_population.remove(chromo)
 
         #print(self.timeday, len(self.timeday), subject_day, sep="\n")
 
-        return new_pop
+
+    def crossover(self, pop):
+
+        newpop = []
+        choices = [4, 8, 12, 16]
+
+        paired = [[pop[x], pop[x+1]] for x in range(0, len(pop)-1, 2)]
+        
+        for chromo_pairs in paired:
+            #performing single point crossover
+            c1 = list(chromo_pairs[0])
+            c2 = list(chromo_pairs[1])
+            
+            #selecting a random point
+            r = random.choice(choices)
+            #print('crossover pt:',r)
+            
+            for i in range(r, len(c1)):
+                c1[i], c2[i] = c2[i], c1[i]
+                chrome1 = ''.join(c1)
+                chrome2 = ''.join(c2)
+
+            newpop.extend([chrome1, chrome2])
+        
+        return newpop
 
 
-    def crossover(self, chrome1, chrome2):
-        
-        #performing single point crossover
-        c1 = list(chrome1)
-        c2 = list(chrome2)
-        
-        #selecting a random point
-        r = random.randint(0,19)
-        #print('crossover pt:',r)
-        
-        for i in range(r, len(c1)):
-            c1[i], c2[i] = c2[i], c1[i]
-            chrome1 = ''.join(c1)
-            chrome2 = ''.join(c2)
-        
-        return chrome1, chrome2
+    def mutation(self, pop):
 
+        newpop = []
+        
+        for chrome in pop:
+            r = random.randint(0,19)
+            #print('mutation pt',r)
+            chrome = list(chrome)
+            chrome[r] = str(1 - int(chrome[r]))
+            chrome = ''.join(chrome)
 
-    def mutation(self, chrome):
+            newpop.append(chrome)
         
-        r = random.randint(0,19)
-        #print('mutation pt',r)
-        chrome = list(chrome)
-        chrome[r] = str(1 - int(chrome[r]))
-        chrome = ''.join(chrome)
-        
-        return chrome
+        return newpop
 
 
     def makecsv(self, population):
@@ -201,8 +207,18 @@ class LecturePlanner:
     def planner(self):
         population = self.init_population()
 
-        pop = self.calc_fitness(population)
+        for i in population:
+            self.new_population.extend(population[i])
 
         #self.print_pop(population, self.fitness)
 
-        self.makecsv(population)
+        while True:
+            if self.new_population != []:
+                self.calc_fitness(self.new_population)
+                self.new_population = self.crossover(self.new_population)
+                print(len(self.new_population))
+
+            else:
+                break
+
+        #self.makecsv(population)
