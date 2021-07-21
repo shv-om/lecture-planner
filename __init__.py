@@ -62,7 +62,7 @@ def inputdata():
 
 
 def startplanning(data):
-	lecture = LecturePlanner(data['batches'], data['rooms'], data['subjects'], data['time_period'], 4)
+	lecture = LecturePlanner(data['batches'][:3], data['rooms'], data['subjects'][:3], data['time_period'][:5], 2)
 	lecture.planner()
 
 

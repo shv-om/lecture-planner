@@ -12,6 +12,7 @@ break = 1 hr  #mention lunch break time
 
 import random
 import csv
+import itertools
 
 total_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -28,8 +29,9 @@ class LecturePlanner:
         self.days = self.init_gene(total_days[:days_count])
         self.fitness = {}
 
-        self.timetable = {}     # Just initialised
+        self.timetable = []     # Just initialised
         self.new_population = []    # Population updated after every fitness calculation
+        self.maxfitness = []
 
         # self.timeday = {timeday_key1: {rooms:[], subjects:[]}, timeday_key2: {...}, ... }
         self.timeday = {}
@@ -78,8 +80,13 @@ class LecturePlanner:
     def calc_fitness(self, population):
         # We can calculate fitness using hashing on chromosomes
 
+        self.fitness = {}
+        self.timeday = {}
+
         batch_day = []      # Batch Day Time
         sub_bat_day = []    # Subject Batch Day
+
+        new_population = {5: [], 4: [], 3: [], 2: [], 1: [], 0:[]}
 
         for chromo in population:
             self.fitness[chromo] = 0
@@ -89,7 +96,11 @@ class LecturePlanner:
 
             timeday_key = splitted_chromo[3] + splitted_chromo[4]
 
-            self.__timedaydict(timeday_key)
+            try:
+                a = self.timeday[timeday_key]
+            except Exception as KeyError:
+                self.__timedaydict(timeday_key)
+
 
             # performing check for empty rooms
             if splitted_chromo[2] not in self.timeday[timeday_key]['rooms']:
@@ -122,8 +133,10 @@ class LecturePlanner:
                     batch_day.append(temp)
 
 
-            if self.fitness[chromo] == 5 and chromo in self.new_population:
-                self.new_population.remove(chromo)
+            #print(chromo, self.fitness[chromo])
+            new_population[self.fitness[chromo]].append(chromo)
+
+        return new_population
 
         #print(self.timeday, len(self.timeday), subject_day, sep="\n")
 
@@ -133,10 +146,24 @@ class LecturePlanner:
         newpop = []
         choices = [4, 8, 12, 16]
 
-        paired = [[pop[x], pop[x+1]] for x in range(0, len(pop)-1, 2)]
-        
+        temp1 = pop[4] + pop[3]
+        temp2 = pop[5]
+
+        paired = list(itertools.product(temp1, temp2))
+
+        # temp1 = pop[ : len(pop)//2]
+        # temp2 = pop[len(pop)//2 : ]
+
+        #paired = [[pop[x], pop[x+1]] for x in range(0, len(pop)-1, 2)]
+
+        # for chromo1, chromo2 in zip(temp1, temp2):
+        #     #performing single point crossover
+        #     c1 = list(chromo1)
+        #     c2 = list(chromo2)
+
+        #print(paired)
+
         for chromo_pairs in paired:
-            #performing single point crossover
             c1 = list(chromo_pairs[0])
             c2 = list(chromo_pairs[1])
             
@@ -150,6 +177,8 @@ class LecturePlanner:
                 chrome2 = ''.join(c2)
 
             newpop.extend([chrome1, chrome2])
+
+        print("newpop:",len(newpop))
         
         return newpop
 
@@ -160,7 +189,7 @@ class LecturePlanner:
         
         for chrome in pop:
             r = random.randint(0,19)
-            #print('mutation pt',r)
+            
             chrome = list(chrome)
             chrome[r] = str(1 - int(chrome[r]))
             chrome = ''.join(chrome)
@@ -170,14 +199,34 @@ class LecturePlanner:
         return newpop
 
 
+    def daywise(self, pop):
+        orderedpop = {}
+
+        for chromo in pop:
+            day = chromo[16:]
+            
+            try:
+                orderedpop[day].append(chromo)
+
+            except Exception as KeyError:
+                orderedpop[day] = []
+                orderedpop[day].append(chromo)
+
+        return orderedpop
+
+
     def makecsv(self, population):
 
         top_header = [self.time_period[x] for x in self.time_period]
         side_header = [y for y in self.days]
 
+        time_len = len(self.time_period)
+
+        orderedpop = self.daywise(population)
         pop = []
-        for i in population:
-            pop.extend(population[i])
+
+        for i in orderedpop:
+            pop.extend(orderedpop[i])
         
         with open('timetable.csv', 'w', encoding='UTF-8') as f:
 
@@ -185,12 +234,12 @@ class LecturePlanner:
 
             writer.writerow(top_header)
 
-            data_list = [pop[i:i+7] for i in range(0, len(pop), 7)]
+            data_list = [pop[i:i+time_len] for i in range(0, len(pop), time_len)]
 
             for data in data_list:
                 data1 = []
                 for chromo in data:
-                    data1.append([self.subjects[chromo[:4]], self.batches[chromo[4:8]][0], self.rooms[chromo[8:12]][0]])
+                    data1.append([self.fitness[chromo], self.subjects[chromo[:4]], self.batches[chromo[4:8]][0], self.rooms[chromo[8:12]][0], self.days[chromo[16:]], self.time_period[chromo[12:16]]])
                 #print(data1)
                 writer.writerow(data1)
 
@@ -199,26 +248,87 @@ class LecturePlanner:
         
         #population = self.init_population()
 
-        for pop in population:
-            for chromosome in population[pop]:
-                print(chromosome, fitness[chromosome], '--> ' + self.subjects[chromosome[:4]], self.batches[chromosome[4:8]], self.rooms[chromosome[8:12]], self.time_period[chromosome[12:16]], self.days[chromosome[16:]], sep=", ")
+        #for pop in population:
+        for chromosome in population:
+            print(chromosome, fitness[chromosome], '--> ' + self.subjects[chromosome[:4]], self.batches[chromosome[4:8]], self.rooms[chromosome[8:12]], self.time_period[chromosome[12:16]], self.days[chromosome[16:]], sep=", ")
 
 
     def planner(self):
         population = self.init_population()
 
+        count = len(self.time_period) * len(self.days) * len(self.batches)
+
+        print("Count:", count)
+
+        new_population = []
+        maxfitness = []
+
         for i in population:
-            self.new_population.extend(population[i])
+            new_population.extend(population[i])
 
         #self.print_pop(population, self.fitness)
 
-        while True:
-            if self.new_population != []:
-                self.calc_fitness(self.new_population)
-                self.new_population = self.crossover(self.new_population)
-                print(len(self.new_population))
+        for i in range(3):
 
-            else:
+            # Unique elements
+            new_population = list(set(new_population))
+
+            new_pop = self.calc_fitness(new_population)
+            maxfitness = new_pop[5][:]
+            
+            print("Max fitness population:", len(maxfitness))
+
+            if len(maxfitness) >= count:
                 break
+            
+            #for i in range(4, 6):
+            #    new_population.extend(new_pop[i])
 
-        #self.makecsv(population)
+            population = self.crossover(new_pop)
+            
+            new_population = maxfitness + population
+
+            print("Population length:", len(new_population))
+            #self.timetable.extend(self.new_population)
+
+
+        self.print_pop(maxfitness, self.fitness)
+        #self.makecsv(maxfitness)
+
+
+
+
+
+
+
+
+"""
+
+def crossover(self, pop):
+
+    newpop = []
+    choices = [4, 8, 12, 16]
+
+    temp1 = pop[4]
+    temp2 = pop[5]
+
+    paired = list(itertools.product(temp1, temp2))
+
+    #print(paired)
+
+    for chromo_pairs in paired:
+        c1 = chromo_pairs[0]
+        c2 = chromo_pairs[1]
+
+        for r in choices:
+            chrome1 = c1[:r] + c2[r:]
+            chrome2 = c2[:r] + c1[r:]
+
+            newpop.extend([chrome1, chrome2])
+
+    print("newpop:",len(newpop))
+    
+    return newpop
+
+
+"""
