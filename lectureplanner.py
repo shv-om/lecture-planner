@@ -18,7 +18,7 @@ total_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 
 class LecturePlanner:
 
-    def __init__(self, batches, rooms, subjects, time_period, days_count):
+    def __init__(self, batches, rooms, subjects, time_period, days_count=5):
         global total_days
 
         #self.teachers = self.init_gene(teachers)
@@ -28,6 +28,14 @@ class LecturePlanner:
         self.time_period = self.init_gene(time_period)
         self.days = self.init_gene(total_days[:days_count])
         self.fitness = {}
+
+        self.collection = {
+                        0: list(self.subjects),
+                        1: list(self.batches),
+                        2: list(self.rooms),
+                        3: list(self.time_period),
+                        4: list(self.days)
+                    }
 
         self.timetable = []     # Just initialised
         self.new_population = []    # Population updated after every fitness calculation
@@ -59,19 +67,14 @@ class LecturePlanner:
 
         population = {}
 
-        # Converting Keys into Lists
-        subject = list(self.subjects)
-        batch = list(self.batches)
-        room = list(self.rooms)
-
-        for b in batch:
+        for b in self.collection[1]:
             population[b] = []
             for day in self.days:
                 for time in self.time_period:
 
                     #chromosome = (random.choice(self.subjects), random.choice(self.batches), random.choice(self.rooms), time, day)
 
-                    chromosome = random.choice(subject) + random.choice(batch) + random.choice(room) + time + day
+                    chromosome = random.choice(self.collection[0]) + random.choice(self.collection[1]) + random.choice(self.collection[2]) + time + day
                     population[b].append(chromosome)
 
         return population
@@ -146,22 +149,10 @@ class LecturePlanner:
         newpop = []
         choices = [4, 8, 12, 16]
 
-        temp1 = pop[4] + pop[3]
+        temp1 = pop[4]
         temp2 = pop[5]
 
         paired = list(itertools.product(temp1, temp2))
-
-        # temp1 = pop[ : len(pop)//2]
-        # temp2 = pop[len(pop)//2 : ]
-
-        #paired = [[pop[x], pop[x+1]] for x in range(0, len(pop)-1, 2)]
-
-        # for chromo1, chromo2 in zip(temp1, temp2):
-        #     #performing single point crossover
-        #     c1 = list(chromo1)
-        #     c2 = list(chromo2)
-
-        #print(paired)
 
         for chromo_pairs in paired:
             c1 = list(chromo_pairs[0])
@@ -187,14 +178,21 @@ class LecturePlanner:
 
         newpop = []
         
-        for chrome in pop:
-            r = random.randint(0,19)
-            
-            chrome = list(chrome)
-            chrome[r] = str(1 - int(chrome[r]))
-            chrome = ''.join(chrome)
+        for chromo in pop:
+            r = random.choice(list(self.collection))
 
-            newpop.append(chrome)
+            chrome = [chromo[i:i+4] for i in range(0, len(chromo), 4)]
+            #print(chrome)
+
+            #chrome[r] = random.choice(self.collection[r])
+
+            for i in range(len(self.collection[r])):
+                chrome[r] = self.collection[r][i]
+
+                delta = ''.join(chrome)
+                #print(r, delta)
+
+                newpop.append(delta)
         
         return newpop
 
@@ -268,7 +266,7 @@ class LecturePlanner:
 
         #self.print_pop(population, self.fitness)
 
-        for i in range(3):
+        while True:
 
             # Unique elements
             new_population = list(set(new_population))
@@ -284,7 +282,9 @@ class LecturePlanner:
             #for i in range(4, 6):
             #    new_population.extend(new_pop[i])
 
-            population = self.crossover(new_pop)
+            cross_population = self.crossover(new_pop)
+
+            population = self.mutation(cross_population)
             
             new_population = maxfitness + population
 
