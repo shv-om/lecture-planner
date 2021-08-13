@@ -51,7 +51,7 @@ def inputdata():
 	subjects = ['Predictive Analytics','NLP','Web Technology','DBMS','OODA','Information Retrieval','Introduction to Python','Machine Learning', 'Extra Sub', 'Extra 2']
 	batches = [['DA', 36], ['GA', 40], ['MI', 35], ['CS', 40]]   #branch name with no. of students
 	#room no. + size of room
-	rooms = [['ROOM NO.1', 50], ['ROOM NO.2', 60], ['ROOM NO.3', 50], ['ROOM NO.4', 80], ['ROOM NO.5', 50], ['ROOM NO.6', 100], ['ROOM NO.7', 50], ['ROOM NO.8',100], ['ROOM NO.9', 50], ['ROOM NO.10', 100]]
+	rooms = [['ROOM NO.1', 50], ['ROOM NO.2', 60], ['ROOM NO.3', 50], ['ROOM NO.4', 80], ['ROOM NO.5', 50], ['ROOM NO.6', 100], ['ROOM NO.7', 50], ['ROOM NO.8',100], ['ROOM NO.9', 50], ['ROOM NO.10', 100], ['ROOM NO.11', 50], ['ROOM NO.12', 60]]
 
 	#pre defined for ease of testing
 	time_period = ['9:00-10:00', '10:00-11:00', '11:00-12:00', '12:30-1:30', '1:30-2:30', '2:30-3:30', '3:30-4:30']  #cllg time from 9:00 to 4:30
@@ -61,7 +61,7 @@ def inputdata():
 
 def startplanning(data):
 	#lecture = LecturePlanner(data['batches'][:3], data['rooms'], data['subjects'][:3], data['time_period'][:5], 2)
-	lecture = LecturePlanner(data['batches'], data['rooms'], data['subjects'], data['time_period'][:4], 2)
+	lecture = LecturePlanner(data['batches'][:3], data['rooms'], data['subjects'], data['time_period'][:4], 4)
 	lecture.planner()
 
 

@@ -170,7 +170,7 @@ class LecturePlanner:
             newpop.extend([chrome1, chrome2])
 
         newpop = list(set(newpop))
-        print("crossover newpop:",len(newpop))
+        # print("crossover newpop:",len(newpop))
         
         return newpop
 
@@ -196,7 +196,7 @@ class LecturePlanner:
                 newpop.append(delta)
 
         newpop = list(set(newpop))
-        print("mutation newpop:",len(newpop))
+        # print("mutation newpop:",len(newpop))
         
         return newpop
 
@@ -241,7 +241,7 @@ class LecturePlanner:
             for data in data_list:
                 data1 = []
                 for chromo in data:
-                    data1.append([self.fitness[chromo], self.subjects[chromo[:4]], self.batches[chromo[4:8]][0], self.rooms[chromo[8:12]][0], self.days[chromo[16:]], self.time_period[chromo[12:16]]])
+                    data1.append([self.subjects[chromo[:4]], self.batches[chromo[4:8]][0], self.rooms[chromo[8:12]][0], self.days[chromo[16:]], self.time_period[chromo[12:16]]])
                 #print(data1)
                 writer.writerow(data1)
 
@@ -270,12 +270,16 @@ class LecturePlanner:
 
         #self.print_pop(population, self.fitness)
 
+        i = 0
+
         while True:
 
             new_pop = self.calc_fitness(new_population)
             maxfitness = new_pop[5][:]
             
-            print("Max fitness population:", len(maxfitness))
+            if i < len(maxfitness):
+                print("Max fitness population:", len(maxfitness))
+                i = len(maxfitness)
 
             if len(maxfitness) >= count:
                 break
@@ -289,10 +293,7 @@ class LecturePlanner:
             
             new_population = maxfitness + cross_population
 
-            print("Population length:", len(new_population))
-
-            #self.timetable.extend(self.new_population)
-
+            # print("Population length:", len(new_population))
 
         self.print_pop(maxfitness, self.fitness)
         self.makecsv(maxfitness)
