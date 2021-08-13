@@ -120,7 +120,7 @@ class LecturePlanner:
                 self.fitness[chromo] += 1
                 
                 # performing check if the batch is having same subject at the same day
-                temp1 = splitted_chromo[0] + splitted_chromo[1] + splitted_chromo[3]
+                temp1 = splitted_chromo[0] + splitted_chromo[1] + splitted_chromo[4]
                 if temp1 not in sub_bat_day:
                     self.fitness[chromo] += 1
                     sub_bat_day.append(temp1)
@@ -274,9 +274,6 @@ class LecturePlanner:
 
             new_pop = self.calc_fitness(new_population)
             maxfitness = new_pop[5][:]
-
-            print(maxfitness)
-            break
             
             print("Max fitness population:", len(maxfitness))
 
@@ -294,10 +291,6 @@ class LecturePlanner:
 
             print("Population length:", len(new_population))
 
-            # Unique elements
-            # new_population = list(set(new_population))
-
-            print("Unique Population length:", len(new_population))
             #self.timetable.extend(self.new_population)
 
 
